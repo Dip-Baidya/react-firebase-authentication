@@ -1,5 +1,5 @@
 import './App.css';
-import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, updateProfile } from "firebase/auth";
 import initializeAuthentication from './firebase/firebase.initialize';
 import { useState } from 'react';
 
@@ -9,6 +9,7 @@ const googleProvider = new GoogleAuthProvider();
 function App() {
   const auth = getAuth();
 
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -68,11 +69,24 @@ function App() {
         console.log(user)
         setError('');
         verifyEmail();
+        setUserName();
       })
       .catch((error) => {
         setError(error.message);
       })
   }
+
+  const setUserName = () => {
+    updateProfile(auth.currentUser, {
+      displayName: name})
+        .then((result) => {
+        console.log(result);
+      })
+        .catch((error) => {
+        console.log(error.message);
+      });
+  }
+
 
   const verifyEmail = () => {
     sendEmailVerification(auth.currentUser)
@@ -90,22 +104,35 @@ function App() {
 
   }
 
+  const handleNameChange = (event) => {
+    setName(event.target.value);
+  }
   const handleEmailChange = (event) => {
     setEmail(event.target.value)
   }
   const handlePasswordChange = (event) => {
     setPassword(event.target.value)
   }
+
   return (
     <div className="mx-5">
       <form onSubmit={handleRegistration}>
         <h3 className='App text-primary'>Please {isLogin ? 'Log In' : 'Register'}</h3>
+
+        {!isLogin && <div className="row mb-3">
+          <label htmlFor="inputName" className="col-sm-2 col-form-label">Name</label>
+          <div className="col-sm-10">
+            <input onBlur={handleNameChange} type="name" className="form-control" id="inputName" placeholder="Name" required />
+          </div>
+        </div>}
+
         <div className="row mb-3">
           <label htmlFor="inputEmail3" className="col-sm-2 col-form-label">Email</label>
           <div className="col-sm-10">
             <input onBlur={handleEmailChange} type="email" className="form-control" id="inputEmail3" required />
           </div>
         </div>
+
         <div className="row mb-3">
           <label htmlFor="inputPassword3" className="col-sm-2 col-form-label">Password</label>
           <div className="col-sm-10">
