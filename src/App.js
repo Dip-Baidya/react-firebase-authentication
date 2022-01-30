@@ -11,6 +11,7 @@ function App() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleGoogleSignIn = () => {
     signInWithPopup(auth, googleProvider)
@@ -21,13 +22,22 @@ function App() {
   }
 
   const handleRegistration = (event) => {
+    event.preventDefault()
+
     console.log(password, email)
+    if (password.length < 6) {
+      setError('Password must be at least 6 character');
+      return;
+    }
+    if (!/(?=.*[A-Z].*[A-Z])/.test(password)) {
+      setError('Password must be contain 2 Upper Case');
+      return;
+    }
     createUserWithEmailAndPassword(auth, email, password)
       .then((result) => {
         const user = result.user
         console.log(user)
       })
-    event.preventDefault()
   }
 
   const handleEmailChange = (event) => {
@@ -52,6 +62,7 @@ function App() {
             <input onBlur={handlePasswordChange} type="password" className="form-control" id="inputPassword3" required />
           </div>
         </div>
+        <div className="row mb-3 text-danger">{error}</div>
 
         <button type="submit" className="btn btn-primary">Sign in</button>
       </form>
